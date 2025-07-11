@@ -1,0 +1,42 @@
+syntax = "proto3";
+option cc_generic_services = true;
+
+package myrpc;
+
+// 定义头部
+message Header {
+  string service_name = 1;
+  string method_name = 2;
+  uint32 parameter_size = 3;
+}
+
+// 定义请求和响应消息
+message Id_Request_message {
+  string info = 1;
+  int32 request_code = 2;
+  int32 id = 3;  
+}
+
+message Id_Response_message {
+  string info = 1;
+  int32 response_code = 2;
+  string name = 3;  
+}
+
+message Name_Request_message {
+  string info = 1;
+  int32 request_code = 2;
+  string name = 3;  
+}
+
+message Name_Response_message {
+  string info = 1;
+  int32 response_code = 2;
+  int32 id = 3;  
+}
+
+// 定义服务接口
+service UsersRpcService {
+  rpc Request_Id_to_name (Id_Request_message) returns (Id_Response_message);
+  rpc Request_Name_to_Id (Name_Request_message) returns (Name_Response_message);
+}
