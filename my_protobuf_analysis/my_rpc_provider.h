@@ -22,6 +22,8 @@ public:
     std::string analysis_write(std::string);
     std::string ip;
     int port;
+
+    std::mutex mutex;
 private:
     my_Zookeeper* zkclient;
     my_Webserver_reactor *my_webserver;

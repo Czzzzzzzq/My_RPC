@@ -23,7 +23,12 @@ public:
         error_text = reason;
     }
 
-    void NotifyOnCancel(google::protobuf::Closure* callback) {}
+    void NotifyOnCancel(google::protobuf::Closure* callback) {
+        if(callback != nullptr)
+        {
+            callback->Run();
+        }
+    }
 
     void StartCancel() {}
     bool IsCanceled() const { return false; }

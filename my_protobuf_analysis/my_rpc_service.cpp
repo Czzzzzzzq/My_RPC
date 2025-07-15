@@ -19,16 +19,19 @@ void my_Rpc_service::Request_Id_to_name(::google::protobuf::RpcController* contr
     int id = request->id();
     //运行本地函数
     std::string name = Request_Id_to_name(id);
+    if(name == ""){
+        controller->SetFailed("id not found");
+    }
     //填充响应信息
     response->set_info("sucess Request_Id_to_name");
     response->set_response_code(666);
     response->set_name(name);
+
+    
     // 响应回调
     if(done != nullptr){
         done->Run();
     }
-
-    //std::cout << "Request_Id_to_name sucess" << std::endl;
 }
 
 void my_Rpc_service::Request_Name_to_Id(::google::protobuf::RpcController* controller,
@@ -39,6 +42,9 @@ void my_Rpc_service::Request_Name_to_Id(::google::protobuf::RpcController* contr
     std::string name = request->name();
     //运行本地函数
     int id = Request_Name_to_Id(name);
+    if(id == 0){
+        controller->SetFailed("name not found");
+    }
     //填充响应信息
     response->set_info("sucess Request_Name_to_Id");    
     response->set_response_code(666);
@@ -47,6 +53,4 @@ void my_Rpc_service::Request_Name_to_Id(::google::protobuf::RpcController* contr
     if(done != nullptr){
         done->Run();
     }
-
-    //std::cout << "Request_Name_to_Id sucess" << std::endl;
 }

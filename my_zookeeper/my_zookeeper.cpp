@@ -6,6 +6,10 @@ bool is_connected = false;  // 标记ZooKeeper客户端是否连接成功
 
 void global_watcher(zhandle_t* handle, int type,int state, const char* path, void* watcherCtx)
 {
+    if(handle == nullptr)
+    {
+        return;
+    }
     if (type == ZOO_SESSION_EVENT) // 回调的消息类型是和会话相关的消息类型
     {
         if (state == ZOO_CONNECTED_STATE) // zkclient和zkserver连接成功

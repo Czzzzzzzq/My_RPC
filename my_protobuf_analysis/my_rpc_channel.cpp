@@ -143,6 +143,12 @@ void my_Rpc_channel::CallMethod(const google::protobuf::MethodDescriptor* method
         }
     }
     close(my_socket);
+
+    if(done != nullptr)
+    {
+        done->Run();
+    }
+    
     return;
 }
 

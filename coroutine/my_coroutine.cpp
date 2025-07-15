@@ -23,37 +23,32 @@ my_Coroutine::~my_Coroutine()
     }
     if(my_coroutine_stack != nullptr)
     {
-        delete[] my_coroutine_stack;
+        free(my_coroutine_stack);
     }
 }
 
 void my_Coroutine::init(int stack_size, std::function<void(my_Coroutine*)> func)
 {
     
-    //my_coroutine_stack_size = stack_size;
     my_coroutine_func = func;
 
-    while(my_coroutine_stack == nullptr){
-        if(stack_size == 0)
-        {
-            my_coroutine_stack_size = 1024 * 1024 * 4;
-        }else{
-            my_coroutine_stack_size = stack_size;
-        }
-        my_coroutine_stack = new char[my_coroutine_stack_size];
+    if(stack_size == 0)
+    {
+        my_coroutine_stack_size = 1024 * 1024 * 4;
+    }else{
+        my_coroutine_stack_size = stack_size;
     }
+
+    my_coroutine_stack = new char[my_coroutine_stack_size];
 
     memset(my_coroutine_stack, 0, my_coroutine_stack_size);
 
-    while(my_coroutine_context == nullptr)
-    {
-        my_coroutine_context = new ucontext_t();
-    }
+    my_coroutine_context = new ucontext_t();
 
     getcontext(my_coroutine_context);
     my_coroutine_context->uc_link = nullptr;
     my_coroutine_context->uc_stack.ss_sp = my_coroutine_stack;
-    my_coroutine_context->uc_stack.ss_size = my_coroutine_stack_size - 1024 * 40;
+    my_coroutine_context->uc_stack.ss_size = my_coroutine_stack_size;
     my_coroutine_context->uc_stack.ss_flags = 0;
     makecontext(my_coroutine_context, &my_Coroutine::run, 0);
 }
@@ -79,6 +74,11 @@ void my_Coroutine::reset(std::function<void(my_Coroutine*)> func)
     my_task = nullptr;
 
     // 设置执行函数
+    getcontext(my_coroutine_context);
+    my_coroutine_context->uc_link = nullptr;
+    my_coroutine_context->uc_stack.ss_sp = my_coroutine_stack;
+    my_coroutine_context->uc_stack.ss_size = my_coroutine_stack_size;
+    my_coroutine_context->uc_stack.ss_flags = 0;
     makecontext(my_coroutine_context, &my_Coroutine::run, 0);
 }
 
@@ -100,7 +100,7 @@ void my_Coroutine::yield()
 void my_Coroutine::resume()
 {
     my_coroutine_status = RUNNING;
-
+    
     set_current(this);
     swapcontext(my_coroutine_main->get_context(), my_coroutine_current->get_context());
 }

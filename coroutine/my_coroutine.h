@@ -52,15 +52,15 @@ public:
     my_Task_node* get_task();
     void set_task(my_Task_node* task);
     void reset_task();
-public:
-    char* my_coroutine_stack = nullptr;
-    int my_coroutine_stack_size;
 
-    std::function<void(my_Coroutine*)> my_coroutine_func;
 private:
     int my_coroutine_id = 0;
     CoroutineStatus my_coroutine_status = READY;
+
     ucontext_t* my_coroutine_context = nullptr;
+    char* my_coroutine_stack = nullptr;
+    int my_coroutine_stack_size;
+    std::function<void(my_Coroutine*)> my_coroutine_func;
 
     my_Task_node* my_task = nullptr;
 };

@@ -116,12 +116,13 @@ std::string my_Rpc_provider::analysis_write(std::string message_request)
     auto service_ite = service_map.find(service_name);
     if (service_ite == service_map.end()) {             
         std::cout << service_name << " is not exist!" << std::endl;
-        return "";
+        return "error";
     }
+
     auto method_ite = service_ite->second.method_map.find(method_name);
     if (method_ite == service_ite->second.method_map.end()) {
         std::cout << service_name << "." << method_name << " is not exist!" << std::endl;
-        return "";
+        return "error";
     }
 
     google::protobuf::Service *service = service_ite->second.service;  // 获取服务对象
@@ -129,17 +130,18 @@ std::string my_Rpc_provider::analysis_write(std::string message_request)
 
     if(service == nullptr){
         std::cout << service_name <<" ptr is not exist!" << std::endl;
-        return "";
+        return "error";
     }
     if(method == nullptr){
         std::cout << method_name <<" ptr is not exist!" << std::endl;
-        return "";
+        return "error";
     }
 
     // 生成RPC方法调用请求的request和响应的response参数
     google::protobuf::Message *request = service->GetRequestPrototype(method).New();  // 动态创建请求对象
     if (!request->ParseFromString(paramenter_str)) {
         std::cout << service_name << "." << method_name << " parse error!" << std::endl;
+        delete request;
         return "error";
     }
     google::protobuf::Message *response = service->GetResponsePrototype(method).New();  // 动态创建响应对象
@@ -148,10 +150,10 @@ std::string my_Rpc_provider::analysis_write(std::string message_request)
     service->CallMethod(method, nullptr, request, response, nullptr);  // 调用服务方法
 
     string message_response;
-    if (response->SerializeToString(&message_response)) {
-        cout << "sucess serialize response_str" << endl;
-    } else {
-        cout << "response_str serialize error" << endl;
+    assert(response != nullptr);
+    bool ok = response->SerializeToString(&message_response);
+    if (!ok) {
+        std::cout << "response serialize error" << std::endl;
     }
     /*
     cout << "message_response=" << message_response << endl;
@@ -159,6 +161,7 @@ std::string my_Rpc_provider::analysis_write(std::string message_request)
     response2.ParseFromString(message_response);
     cout << "response2.name()=" << response2.name() << endl;
     */
-
+    delete request;
+    delete response;
     return message_response;
 }
